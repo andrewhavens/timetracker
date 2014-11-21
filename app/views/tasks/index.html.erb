@@ -1,0 +1,65 @@
+<%= link_to 'New Client', new_client_path, style: 'float:right' %>
+
+<% if today_is_monday? %>
+  <p><%= link_to raw('&laquo; Friday'), "/#{friday_date}" %></p>
+<% else %>
+  <p><%= link_to raw('&laquo; Yesterday'), '/yesterday' %></p>
+<% end %>
+
+<div style="float:right">
+  <h2>Today's Priorities</h2>
+  <ul id="priorities">
+    <% @priorities.each do |priority| %>
+      <li id="priorities_<%= priority.id %>">
+        <span class="handle">+</span>
+        <%= link_to '<i class="general-enclosed foundicon-remove remove"></i>'.html_safe, priority, method: :delete, class: 'remove', data: { confirm: 'Are you sure?' } %>
+        <%= priority.description %> 
+      </li>
+    <% end %>
+    <li>
+      <%= form_for Priority.new do |f| %>
+        <%= f.text_field :description, placeholder: 'new priority' %>
+      <% end %>
+    </li>
+  </ul>
+</div>
+
+<h2>Total: <%= @hours_today %> hours</h2>
+<% if @hours_remaining > 0 %>
+  <h2>Remaining: <%= @hours_remaining %> - <%= (Time.now + @hours_remaining.hours).strftime('%l:%M %p') %></h2>
+<% end %>
+
+<p><%= link_to 'Summary', 'javascript:toggleView()' %> | <%= link_to 'Tasks', 'javascript:toggleView()' %></p>
+
+<div id="summary" style="display:none">
+<%= render partial: 'summary', locals: { clients: @today_clients } %>
+</div>
+
+<table id="tasks"></table>
+
+
+<script>
+var clients = new TimeTracker.Collections.Clients(<%= raw Client.order(:name).all.to_json %>);
+var collection = new TimeTracker.Collections.Tasks(<%= raw @tasks_today.to_json %>);
+var view = new TimeTracker.Views.TaskList({el: $('#tasks'), collection: collection, clients: clients});
+view.render();
+
+function toggleView(){
+  $('#summary').toggle();
+  $('#tasks').toggle();
+}
+
+$('#priorities').sortable({
+  handle: '.handle',
+  update: function (event, ui) {
+    var data = $(this).sortable('serialize');
+    $.ajax({
+      type: 'PUT',
+      url: '/priorities/order',
+      dataType: 'json',
+      data: data
+    });
+  }
+});
+//$( "#sortable" ).disableSelection();
+</script>

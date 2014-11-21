@@ -1,0 +1,10 @@
+<div class="summary_table">
+  <% clients.each do |client| %>
+    <strong><%= client.name %> (<%= client.tasks.collect(&:hours).sum %>)</strong>
+    <ul>
+      <% group_tasks_by_description(client.tasks).each do |description, task_group| %>
+        <li><%= task_group.first.description %> (<%= task_group.collect(&:hours).sum %>)</li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

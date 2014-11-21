@@ -1,0 +1,14 @@
+<td class="hours"><%= @hours %></td>
+<td><input class="time" name="start" type="text" value="<%= @startTime %>" autocomplete="off">
+  - <input class="time" name="end" type="text" value="<%= @endTime %>" autocomplete="off"></td>
+<td>
+  <select name="client_id" class="chzn-select" data-placeholder="Client" style="width:120px">
+    <% for client in @clients: %>
+      <option value="<%= client.id %>" <%= 'selected' if @client_id == client.id %>><%= client.name %></option>
+    <% end %>
+  </select>
+  <input name="description" type="text" value="<%= @description %>" autocomplete="off" style="width:275px"></td>
+<td>
+  <a class="edit" href="/tasks/<%= @id %>/edit">Edit</a>
+  <i class="general-enclosed foundicon-remove remove"></i>
+</td>

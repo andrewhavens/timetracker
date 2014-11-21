@@ -1,0 +1,70 @@
+<p style="text-align:center">
+
+  <span style="float:left">
+    <% if @date.yesterday == Date.yesterday %>
+      <%= link_to raw('Yesterday &raquo;'), '/yesterday' %>
+    <% else  %>
+      <%= link_to raw('&laquo; Prev'), @date.yesterday.strftime('/%Y/%m/%d') %>
+    <% end %>
+  </span>
+
+  <span style="float:right">
+    <% if @date.tomorrow == Date.yesterday %>
+      <%= link_to raw('Yesterday &raquo;'), '/yesterday' %>
+    <% elsif @date.tomorrow == Date.today %>
+      <%= link_to raw('Today &raquo;'), '/' %>
+    <% elsif @date.tomorrow == Date.tomorrow %>
+    <% else  %>
+      <%= link_to raw('Next &raquo;'), @date.tomorrow.strftime('/%Y/%m/%d') %>
+      <%= link_to raw('Today &raquo;'), '/' %>
+    <% end %>
+  </span>
+
+  <span class="day_title"><%= @date_title %></span>
+</p>
+
+<h2>Total: <%= @tasks.collect(&:hours).sum %></h2>
+
+<p><%= link_to 'Summary', 'javascript:toggleView()' %> | <%= link_to 'Tasks', 'javascript:toggleView()' %></p>
+
+<% if @tasks.count > 0 %>
+
+  <div id="summary">
+    <%= render partial: 'summary', locals: { clients: @tasks_with_clients } %>
+  </div>
+
+  <div id="tasks" style="display:none">
+  <table>
+    <tr>
+      <th>Hours</th>
+      <!-- <th>Day</th> -->
+      <th>Time</th>
+      <th align="left">Description</th>
+      <th></th>
+    </tr>
+
+  <% @tasks.each do |task| %>
+    <tr>
+      <td><%= task.hours %></td>
+      <!-- <td><%= task.start.strftime('%m/%d') %></td> -->
+      <td><%= task.start.strftime('%I:%M') %> - <%= task.end.strftime('%I:%M') %></td>
+      <td><%= task.client.name %>: <%= task.description %></td>
+      <td>
+        <%= link_to 'Edit', edit_task_path(task) %>
+        <%= link_to raw('<i class="general-enclosed foundicon-remove"></i>'), task, method: :delete, data: { confirm: 'Are you sure?' } %>
+      </td>
+    </tr>
+  <% end %>
+  </table>
+
+  <%= link_to 'New Task', new_task_path(start: (@tasks.last.end rescue nil), end: (@tasks.last.end rescue nil)) %>
+  </div>
+
+<% end %>
+
+<script>
+function toggleView(){
+  $('#tasks').toggle();
+  $('#summary').toggle();
+}
+</script>
